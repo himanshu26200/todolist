@@ -1,23 +1,23 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const _ = require("lodash");
-// const date = require(__dirname + "/date.js");
-const app = express();
 
-// const items = ["Gym", "Eat meal", "Drink more water"];
-// const workItems = [];
+const app = express();
 
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-mongoose.connect(
-  "mongodb+srv://naman:naman@cluster0.forku.mongodb.net/todolistDB",
-  {
+const mongoURI = process.env.DB_URI;
+mongoose
+  .connect(mongoURI, {
     useNewUrlParser: true,
-  }
-);
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Connected !"));
+
 const itemSchema = new mongoose.Schema({
   name: String,
 });
@@ -46,7 +46,6 @@ const item3 = new Item({
 const defaultItems = [item1, item2, item3];
 
 app.get("/", (req, res) => {
-  // let day = date.getDate();
   Item.find({}, (err, foundItems) => {
     if (foundItems.length === 0) {
       Item.insertMany(defaultItems, (err) => {
@@ -132,7 +131,7 @@ app.post("/delete", (req, res) => {
 
 let port = process.env.PORT;
 if (port == null || port == "") {
-  port = 3000;
+  port = 8000;
 }
 
 app.listen(port, () => console.log(`The Server is running on port ${port}`));
